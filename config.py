@@ -105,24 +105,43 @@ class DesktopConfig:
 		if wm is None:
 			wm = get_wm()
 
-		desktop = wm.current_monitor.create_desktop(self.name)
+		if len(set(self.get_duplicates(wm.current_monitor))) == 0:
+			name = self.collapsed_name
+		else:
+			name = self.expanded_name
+
+		desktop = wm.current_monitor.create_desktop(name)
 		return desktop
 
-	def expand(self, wm: BSPWM = None, desktop: Desktop = None):
+	def get_duplicates(self, monitor: Monitor, wm: BSPWM = None):
+		desktops = CONFIG.get_desktops(wm, monitor)
+		for desk in desktops:
+			if self.name == desk.name and self != desk:
+				yield desk
+
+	@property
+	def expanded_name(self):
+		return f"{self.name} {self.extra_name}"
+
+	@property
+	def collapsed_name(self):
+		return f"{self.name}"
+
+	def update_name(self, desktop: Desktop = None, propagate: bool = True, wm: BSPWM = None):
+		if wm is None:
+			wm = get_wm()
+
 		if desktop is None:
 			desktop = self.find(wm)
-		if desktop:
-			desktop.rename(f"{self.name} {self.extra_name}")
 
-	def collapse(self, wm: BSPWM = None, desktop: Desktop = None):
-		if desktop is None:
-			desktop = self.find(wm)
-		if desktop:
-			desktop.rename(f"{self.name}")
-
-	def rename(self, desktop: Desktop):
-		if desktop.name != self.name:
-			desktop.rename(f"{self.name}")
+		duplicates = set(self.get_duplicates(desktop.monitor, wm))
+		if not duplicates:
+			desktop.rename(self.collapsed_name)
+		else:
+			desktop.rename(self.expanded_name)
+			if propagate:
+				for desk in duplicates:
+					desk.update_name(propagate=False)
 
 
 class ApplicationConfig:

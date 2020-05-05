@@ -2,8 +2,8 @@
 import logging
 
 from config import CONFIG
-from helpers import clear_empty_desktops, new_misc_desktop, expand_duplicates, collapse_non_duplicates, rename_all, \
- create_home, reorder
+from helpers import clear_empty_desktops, new_misc_desktop, rename_all, \
+ create_home, reorder, update_names
 from pybspc import *
 
 logging.basicConfig(filename='dynbspwm.log',
@@ -23,7 +23,7 @@ def node_added(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 			target_desktop = app_config.desktop.create(wm)
 		if desktop != target_desktop:
 			node.to_desktop(target_desktop)
-		expand_duplicates()
+		app_config.desktop.update_name(target_desktop, wm)
 	else:
 		if CONFIG.match_home(desktop):
 			new_misc_desktop(True, node, wm)
@@ -39,15 +39,14 @@ def node_removed(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 
 @sub.event('desktop_remove')
 def desktop_removed(wm, monitor: Monitor, desktop: Desktop):
-	collapse_non_duplicates(wm)
+	update_names(wm)
 
 
 def startup():
 	create_home()
-	rename_all()
-	expand_duplicates()
-	collapse_non_duplicates()
 	clear_empty_desktops(get_wm())
+	rename_all()
+	update_names()
 	reorder()
 	sub.listen()
 

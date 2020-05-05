@@ -20,48 +20,20 @@ def new_misc_desktop(move=False, node: Node = None, wm: BSPWM = None):
 		node.to_desktop(desk, follow=True)
 
 
-def _get_duplicates(desktop: DesktopConfig, desktops: Set[DesktopConfig]):
-	for desk in desktops:
-		if desktop.name == desk.name:
-			yield desk
-
-
-def expand_duplicates(wm: BSPWM = None):
-	if wm is None:
-		wm = get_wm()
-	desktops = set(CONFIG.get_desktops(wm))
-	while len(desktops) > 0:
-		desktop = desktops.pop()
-		duplicates = set(_get_duplicates(desktop, desktops))
-		for desk in duplicates:
-			desktops.remove(desk)
-			desktop.expand(wm)
-			desk.expand(wm)
-
-
-def collapse_non_duplicates(wm: BSPWM = None):
-	if wm is None:
-		wm = get_wm()
-	desktops = set(CONFIG.get_desktops(wm))
-	while len(desktops) > 0:
-		desktop = desktops.pop()
-		duplicates = set(_get_duplicates(desktop, desktops))
-		if len(duplicates) == 0:
-			desktop.collapse(wm)
-		else:
-			desktops = desktops.difference(duplicates)
-
-
 def rename_all(wm: BSPWM = None):
 	if wm is None:
 		wm = get_wm()
 	for desktop in wm.desktops:
 		desk = CONFIG.match_desktop_by_applications(desktop)
 		if desk is not None:
-			if len(set(_get_duplicates(desktop, CONFIG.get_desktops(wm, desktop.monitor)))) == 1:
-				desk.collapse(wm, desktop)
-			else:
-				desk.expand(wm, desktop)
+			desk.update_name(desktop, wm)
+
+
+def update_names(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
+	for desktop in CONFIG.get_desktops(wm):
+		desktop.update_name(wm=wm)
 
 
 def create_home(wm: BSPWM = None):
