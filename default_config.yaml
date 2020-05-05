@@ -1,0 +1,61 @@
+home:
+  name: ""
+  applications:
+    - class: conky
+misc: "•"
+desktops:
+  - name: ""
+    extra_name: ''
+    order: 2
+    applications:
+      - class: Chromium
+  - name: ﭮ
+    extra_name: discord
+    order: 2
+    applications:
+      - class: discord
+  - name: ""
+    extra_name: pycharm
+    order: 3
+    applications:
+      - class: jetbrains-pycharm
+  - name: ""
+    extra_name: phpstorm
+    order: 3
+    applications:
+      - class: jetbrains-phpstorm
+  - name: ""
+    extra_name: webstorm
+    order: 3
+    applications:
+      - class: jetbrains-webstorm
+  - name: ""
+    extra_name: idea
+    order: 3
+    applications:
+      - class: jetbrains-idea
+  - name: ""
+    extra_name: VS Code
+    order: 3
+    applications:
+      - class: Code - OSS
+  - name: MMC
+    extra_name: ''
+    order: 4
+    applications:
+      - class: MultiMC5
+  - name: MC
+    extra_name: "%instance"
+    order: 5
+    applications:
+      - class: Minecraft .*
+  - name: TEST
+    extra_name: EXTRA
+    order: 6
+    applications:
+      - class: Gnome-calculator
+  - name: TEST
+    extra_name: EXTRATWO
+    order: 6
+    applications:
+      - class: Qalculate-gtk
