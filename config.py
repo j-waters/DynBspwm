@@ -1,4 +1,6 @@
 import os
+from typing import List, Set
+
 from yaml import safe_load
 
 from pybspc import Node, BSPWM, get_wm, Desktop, Monitor
@@ -80,21 +82,22 @@ class DesktopConfig:
 				return application
 		return None
 
-	def match(self, desktop: Desktop):
+	def match(self, desktop: Desktop, exclude_nodes: Set[Node] = None):
 		if desktop.name == self.name or desktop.name == f"{self.name} {self.extra_name}":
-			return self.match_applications(desktop)
+			return self.match_applications(desktop, exclude_nodes)
 		return False
 
-	def match_applications(self, desktop: Desktop):
-		for node in desktop.nodes:
+	def match_applications(self, desktop: Desktop, exclude_nodes: Set[Node] = None):
+		for node in desktop.nodes.difference(exclude_nodes if exclude_nodes is not None else set()):
 			if self.match_node(node):
 				return True
+		return False
 
-	def find(self, wm: BSPWM = None):
+	def find(self, wm: BSPWM = None, exclude_nodes: Set[Node] = None):
 		if wm is None:
 			wm = get_wm()
 		for desktop in wm.desktops:
-			if self.match(desktop):
+			if self.match(desktop, exclude_nodes):
 				return desktop
 		return None
 

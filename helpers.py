@@ -74,11 +74,18 @@ def create_home(wm: BSPWM = None):
 def reorder(wm: BSPWM = None):
 	if wm is None:
 		wm = get_wm()
+
+	def _remove_duplicates(seq):
+		seen = set()
+		seen_add = seen.add
+		return [x for x in seq if not (x in seen or seen_add(x))]
+
 	for monitor in wm.monitors:
 		ordered = [
 			desktop.find(wm) for desktop in sorted(CONFIG.get_desktops(wm, monitor), key=lambda desktop: desktop.order)
 		]
 		ordered.insert(0, CONFIG.get_home(wm))
+		ordered = _remove_duplicates(ordered)
 		not_included = [desktop for desktop in monitor.desktops if desktop not in ordered]
 		ordered = ordered + not_included
 		monitor.reorder(ordered)

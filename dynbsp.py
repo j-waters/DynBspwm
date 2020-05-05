@@ -18,7 +18,7 @@ sub = Subscriber()
 def node_added(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 	app_config = CONFIG.match_node(node)
 	if app_config is not None:
-		target_desktop = app_config.desktop.find(wm)
+		target_desktop = app_config.desktop.find(wm, exclude_nodes={node})
 		if target_desktop is None:
 			target_desktop = app_config.desktop.create(wm)
 		if desktop != target_desktop:
@@ -27,7 +27,7 @@ def node_added(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 	else:
 		if CONFIG.match_home(desktop):
 			new_misc_desktop(True, node, wm)
-	reorder(wm)
+	reorder(get_wm())
 	logging.info(f"Node added {node}, {desktop}")
 
 
