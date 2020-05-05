@@ -1,7 +1,7 @@
 from typing import Union, Set
 
 from config import CONFIG, DesktopConfig
-from pybspc import Monitor, BSPWM, get_wm, Node
+from pybspc import Monitor, BSPWM, get_wm, Node, Desktop
 
 
 def clear_empty_desktops(container: Union[BSPWM, Monitor]):
@@ -10,8 +10,9 @@ def clear_empty_desktops(container: Union[BSPWM, Monitor]):
 			desktop.delete()
 
 
-def new_misc_desktop(move=False, node: Node = None):
-	wm = get_wm()
+def new_misc_desktop(move=False, node: Node = None, wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	desk = wm.current_monitor.create_desktop(CONFIG.misc_name)
 	if move:
 		if node is None:
@@ -25,8 +26,9 @@ def _get_duplicates(desktop: DesktopConfig, desktops: Set[DesktopConfig]):
 			yield desk
 
 
-def expand_duplicates():
-	wm = get_wm()
+def expand_duplicates(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	desktops = set(CONFIG.get_desktops(wm))
 	while len(desktops) > 0:
 		desktop = desktops.pop()
@@ -37,8 +39,9 @@ def expand_duplicates():
 			desk.expand(wm)
 
 
-def collapse_non_duplicates():
-	wm = get_wm()
+def collapse_non_duplicates(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	desktops = set(CONFIG.get_desktops(wm))
 	while len(desktops) > 0:
 		desktop = desktops.pop()
@@ -49,8 +52,9 @@ def collapse_non_duplicates():
 			desktops = desktops.difference(duplicates)
 
 
-def rename_all():
-	wm = get_wm()
+def rename_all(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	for desktop in wm.desktops:
 		desk = CONFIG.match_desktop_by_applications(desktop)
 		if desk is not None:
@@ -60,14 +64,16 @@ def rename_all():
 				desk.expand(wm, desktop)
 
 
-def create_home():
-	wm = get_wm()
+def create_home(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	if CONFIG.get_home(wm) is None:
 		CONFIG.home_desktop.create(wm)
 
 
-def reorder():
-	wm = get_wm()
+def reorder(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
 	for monitor in wm.monitors:
 		ordered = [
 			desktop.find(wm) for desktop in sorted(CONFIG.get_desktops(wm, monitor), key=lambda desktop: desktop.order)

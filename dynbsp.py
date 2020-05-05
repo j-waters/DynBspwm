@@ -26,7 +26,8 @@ def node_added(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 		expand_duplicates()
 	else:
 		if CONFIG.match_home(desktop):
-			new_misc_desktop(True, node)
+			new_misc_desktop(True, node, wm)
+	reorder(wm)
 	logging.info(f"Node added {node}, {desktop}")
 
 
@@ -38,7 +39,7 @@ def node_removed(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 
 @sub.event('desktop_remove')
 def desktop_removed(wm, monitor: Monitor, desktop: Desktop):
-	collapse_non_duplicates()
+	collapse_non_duplicates(wm)
 
 
 def startup():
