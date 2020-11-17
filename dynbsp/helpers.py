@@ -1,7 +1,7 @@
 from typing import Union
 
 from .config import CONFIG
-from .pybspc import Monitor, BSPWM, get_wm, Node, run
+from .pybspc import Monitor, BSPWM, get_wm, Node, run, ClientState, NodeFlag, Rect
 
 
 def clear_empty_desktops(container: Union[BSPWM, Monitor]):
@@ -93,3 +93,23 @@ def new_monitor_added(monitor: Monitor, wm: BSPWM = None):
 			if not CONFIG.match_home(desktop):
 				desktop.to_monitor(monitor)
 		reorder(wm)
+
+
+def picture_in_picture():
+	wm = get_wm()
+	current_node = wm.current_monitor.current_desktop.current_node
+	if current_node.sticky and current_node.client.state is ClientState.FLOATING:
+		current_node.set_state(ClientState.TILED)
+		current_node.set_flag(NodeFlag.STICKY, False)
+	else:
+		current_node.set_state(ClientState.FLOATING)
+		current_node.set_flag(NodeFlag.STICKY, True)
+
+		monitor_rect = wm.current_monitor.rectangle
+		monitor_padding = wm.current_monitor.padding
+		extra_padding = wm.current_monitor.window_gap - wm.current_monitor.border_width
+		w = round(monitor_rect.width * 0.3)
+		h = round(monitor_rect.height * 0.3)
+		x = monitor_rect.x + monitor_rect.width - w - monitor_padding.right - extra_padding
+		y = monitor_rect.y + monitor_rect.height - h - monitor_padding.bottom - extra_padding
+		current_node.set_rect(Rect(x, y, w, h))

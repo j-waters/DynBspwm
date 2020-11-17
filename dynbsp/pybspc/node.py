@@ -1,6 +1,7 @@
+from enum import Enum
 from typing import TYPE_CHECKING, Union
 
-from .utils import run
+from .utils import run, Rect
 
 if TYPE_CHECKING:
 	from .desktop import Desktop
@@ -35,6 +36,10 @@ class Node:
 			children = children.union(self.second_child.children)
 		return children
 
+	@property
+	def sticky(self):
+		return self.data["sticky"]
+
 	def to_desktop(self, desktop: "Desktop", follow=True):
 		run(f'bspc node {self.id} --to-desktop {desktop.id} {"--follow" if follow else ""}')
 
@@ -53,6 +58,43 @@ class Node:
 				self.second_child.pretty_print(indent=indent + 1)
 			print("|\t" * indent, "]>", sep="")
 
+	def set_state(self, state: "ClientState"):
+		run(f"bspc node {self.id} --state {state.value}")
+
+	def set_flag(self, flag: "NodeFlag", enable=True):
+		run(f"bspc node {self.id} --flag {flag.value}={'on' if enable else 'off'}")
+
+	def move(self, dx, dy):
+		run(f'bspc node {self.id} --move {dx} {dy}')
+
+	def resize(self, dw, dh, handle):
+		run(f'bspc node {self.id} --resize {handle} {dw} {dh}')
+
+	def set_rect(self, target: "Rect"):
+		"""
+		target = {'x': 2390, 'y': 1290, 'width': 800, 'height': 500}
+# 		dx = target['x'] - node.client['floatingRectangle']['x']
+# 		dy = target['y'] - node.client['floatingRectangle']['y']
+# 		dwidth = target['width'] - node.client['floatingRectangle']['width']
+# 		dheight = target['height'] - node.client['floatingRectangle']['height']
+# 		pybspc.run(f'bspc node --move {dx} {dy} --resize bottom_right {dwidth} {dheight}')
+		"""
+		dx = target.x - self.client.floating_rectangle.x
+		dy = target.y - self.client.floating_rectangle.y
+		dw = target.width - self.client.floating_rectangle.width
+		dh = target.height - self.client.floating_rectangle.height
+		print(self.client.floating_rectangle)
+		print(dx, dy, dw, dh)
+		run(f'bspc node {self.id} --move {dx} {dy} --resize bottom_right {dw} {dh}')
+
+
+class NodeFlag(Enum):
+	HIDDEN = "hidden"
+	STICKY = "sticky"
+	PRIVATE = "private"
+	LOCKED = "locked"
+	MARKED = "marked"
+
 
 class Client:
 	def __init__(self, data):
@@ -66,5 +108,26 @@ class Client:
 	def instance_name(self):
 		return self.data.get("instanceName", None)
 
+	@property
+	def state(self) -> "ClientState":
+		return ClientState(self.data["state"])
+
+	@property
+	def tiled_rectangle(self):
+		return Rect(self.data["tiledRectangle"]["x"], self.data["tiledRectangle"]["y"],
+					self.data["tiledRectangle"]["width"], self.data["tiledRectangle"]["height"])
+
+	@property
+	def floating_rectangle(self):
+		return Rect(self.data["floatingRectangle"]["x"], self.data["floatingRectangle"]["y"],
+					self.data["floatingRectangle"]["width"], self.data["floatingRectangle"]["height"])
+
 	def __repr__(self):
 		return f"<Client class: {self.class_name}>"
+
+
+class ClientState(Enum):
+	TILED = "tiled"
+	PSEUDO_TILED = "pseudo_tiled"
+	FLOATING = "floating"
+	FULLSCREEN = "fullscreen"

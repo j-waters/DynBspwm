@@ -2,7 +2,7 @@ from typing import Set, List, Tuple
 
 from .desktop import Desktop
 from .node import Node
-from .utils import run, INVCHAR, _int
+from .utils import run, INVCHAR, _int, Rect, Padding
 
 
 class Monitor:
@@ -69,3 +69,21 @@ class Monitor:
 
 	def remove(self):
 		run(f'bspc monitor {self.id} --remove')
+
+	@property
+	def rectangle(self):
+		return Rect(self.data["rectangle"]["x"], self.data["rectangle"]["y"], self.data["rectangle"]["width"],
+					self.data["rectangle"]["height"])
+
+	@property
+	def padding(self):
+		return Padding(self.data["padding"]["top"], self.data["padding"]["right"], self.data["padding"]["bottom"],
+						self.data["padding"]["left"])
+
+	@property
+	def window_gap(self):
+		return self.data["windowGap"]
+
+	@property
+	def border_width(self):
+		return self.data["borderWidth"]

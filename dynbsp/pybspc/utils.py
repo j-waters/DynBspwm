@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from json import loads
 from logging import error
 from subprocess import Popen, PIPE
@@ -46,3 +47,19 @@ def _int(i):
 	if type(i) == str:
 		return int(i, 0)
 	return int(i)
+
+
+@dataclass
+class Rect:
+	x: int
+	y: int
+	width: int
+	height: int
+
+
+@dataclass
+class Padding:
+	top: int
+	right: int
+	bottom: int
+	left: int
