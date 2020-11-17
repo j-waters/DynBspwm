@@ -8,7 +8,7 @@ from helpers import clear_empty_desktops, new_misc_desktop, rename_all, \
  create_home, reorder, update_names, new_monitor_added, remove_old_monitors
 from pybspc import *
 
-logging.basicConfig(filename='dynbspwm.log',
+logging.basicConfig(filename='~/dynbspwm.log',
 					format='%(asctime)s | %(filename)s:%(lineno)d | %(funcName)s | %(levelname)s | %(message)s',
 					level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler())
