@@ -1,8 +1,12 @@
+# Configure the home desktop. Applications launched on this desktop
+# will be moved to their own new 'misc' desktop unless whitelisted
 home:
   name: ""
-  applications:
-    - class: conky
+# The name of 'misc' desktops
 misc: "•"
+# A list of desktops, with the applications that should be put on them
+# If two desktops have the same name, and extra_name is defined, the desktops
+# will be renamed to '{name} {extra_name}'
 desktops:
   - name: ""
     extra_name: ''
@@ -39,23 +43,3 @@ desktops:
     order: 340
     applications:
       - class: code-oss
-  - name: MMC
-    extra_name: ''
-    order: 410
-    applications:
-      - class: MultiMC5
-  - name: MC
-    extra_name: "%instance"
-    order: 420
-    applications:
-      - class: Minecraft .*
-  - name: TEST
-    extra_name: EXTRA
-    order: 6
-    applications:
-      - class: Gnome-calculator
-  - name: TEST
-    extra_name: EXTRATWO
-    order: 6
-    applications:
-      - class: Qalculate-gtk

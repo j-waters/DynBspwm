@@ -86,7 +86,7 @@ class Config:
 class DesktopConfig:
 	def __init__(self, config):
 		self.name = config['name']
-		self.extra_name = config.get('extra_name', None)
+		self.extra_name = config.get('extra_name', '')
 		self.order = config.get('order', 9999)
 		self.applications = set()
 		for application in config['applications']:
