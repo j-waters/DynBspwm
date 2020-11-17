@@ -1,4 +1,3 @@
-from json import loads
 from typing import TYPE_CHECKING, Union
 
 from .utils import run

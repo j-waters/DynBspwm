@@ -1,7 +1,7 @@
 from typing import Union
 
-from config import CONFIG
-from pybspc import Monitor, BSPWM, get_wm, Node, run
+from .config import CONFIG
+from .pybspc import Monitor, BSPWM, get_wm, Node, run
 
 
 def clear_empty_desktops(container: Union[BSPWM, Monitor]):

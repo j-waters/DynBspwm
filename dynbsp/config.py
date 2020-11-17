@@ -1,28 +1,50 @@
 import os
 from pathlib import Path
 from re import compile
+from shutil import copyfile
 from typing import Set
 
 from yaml import safe_load
 
-from pybspc import Node, BSPWM, get_wm, Desktop, Monitor
+from .pybspc import Node, BSPWM, get_wm, Desktop, Monitor
 
 
 class Config:
+	_home_desktop: "DesktopConfig"
+	_misc_name: str
+	_desktops: Set["DesktopConfig"]
+	last_modified: float = None
 	DEFAULT_LOCATION = Path(os.path.realpath(__file__)).parent.joinpath('default_config.yaml')
 	CONFIG_LOCATION = os.path.join(os.getenv("HOME"), '.config/dynbsp/config.yaml')
 
 	def __init__(self):
-		with open(Config.DEFAULT_LOCATION, 'r') as f:
-			self.data = safe_load(f)
+		if not os.path.exists(self.CONFIG_LOCATION):
+			copyfile(self.DEFAULT_LOCATION, self.CONFIG_LOCATION)
 
-		self.desktops = set()
+	def load_data(self):
+		if os.path.getmtime(Config.CONFIG_LOCATION) != self.last_modified:
+			with open(Config.CONFIG_LOCATION, 'r') as f:
+				data = safe_load(f)
+			self.last_modified = os.path.getmtime(Config.CONFIG_LOCATION)
 
-		for desktop in self.data['desktops']:
-			self.desktops.add(DesktopConfig(desktop))
+			self._desktops = set(DesktopConfig(desktop) for desktop in data['desktops'])
+			self._misc_name = data['misc']
+			self._home_desktop = DesktopConfig(data['home'])
 
-		self.misc_name = self.data['misc']
-		self.home_desktop = DesktopConfig(self.data['home'])
+	@property
+	def desktops(self):
+		self.load_data()
+		return self._desktops
+
+	@property
+	def misc_name(self):
+		self.load_data()
+		return self._misc_name
+
+	@property
+	def home_desktop(self):
+		self.load_data()
+		return self._home_desktop
 
 	def match_node(self, node: Node):
 		for desktop in self.desktops:
@@ -107,7 +129,7 @@ class DesktopConfig:
 		desktop = monitor.create_desktop(name)
 		return desktop
 
-	def get_duplicates(self, monitor: Monitor, wm: BSPWM = None):
+	def get_duplicates(self, monitor: Monitor = None, wm: BSPWM = None):
 		desktops = CONFIG.get_desktops(wm, monitor)
 		for desk in desktops:
 			if self.name == desk.name and self != desk:
@@ -128,7 +150,7 @@ class DesktopConfig:
 		if desktop is None:
 			desktop = self.find(wm)
 
-		duplicates = set(self.get_duplicates(desktop.monitor, wm))
+		duplicates = set(self.get_duplicates(None, wm))
 		if not duplicates:
 			desktop.rename(self.collapsed_name)
 		else:

@@ -38,7 +38,7 @@ desktops:
     extra_name: VS Code
     order: 340
     applications:
-      - class: Code - OSS
+      - class: code-oss
   - name: MMC
     extra_name: ''
     order: 410

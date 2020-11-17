@@ -3,10 +3,10 @@ from json.decoder import JSONDecodeError
 from logging import error
 from typing import Set
 
-from .utils import run, _int
+from .desktop import Desktop
 from .monitor import Monitor
 from .node import Node
-from .desktop import Desktop
+from .utils import run, _int
 
 
 class BSPWM:

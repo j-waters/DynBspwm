@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 import logging
 
-import click
+from .config import CONFIG
+from .helpers import clear_empty_desktops, new_misc_desktop, \
+ reorder, update_names, new_monitor_added
+from .pybspc import *
 
-from config import CONFIG
-from helpers import clear_empty_desktops, new_misc_desktop, rename_all, \
- create_home, reorder, update_names, new_monitor_added, remove_old_monitors
-from pybspc import *
-
-logging.basicConfig(filename='~/dynbspwm.log',
+logging.basicConfig(filename='dynbspwm.log',
 					format='%(asctime)s | %(filename)s:%(lineno)d | %(funcName)s | %(levelname)s | %(message)s',
 					level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler())
@@ -53,35 +51,3 @@ def monitor_add(wm, monitor: Monitor):
 def node_transfer(wm, src_monitor: Monitor, src_desktop: Desktop, src_node: Node, dst_monitor: Monitor,
 					dst_desktop: Desktop, dst_node: Node):
 	clear_empty_desktops(src_monitor)
-
-
-@click.group(invoke_without_command=True)
-@click.pass_context
-def cli(ctx):
-	if ctx.invoked_subcommand is None:
-		start()
-
-
-@cli.command()
-def start():
-	create_home()
-	clear_empty_desktops(get_wm())
-	rename_all()
-	update_names()
-	reorder()
-	sub.listen()
-
-
-@cli.command()
-def multimonitor():
-	remove_old_monitors()
-
-
-@cli.command()
-@click.option('--move', default=False, is_flag=True, help='move current node to desktop')
-def new_desktop(move):
-	new_misc_desktop(move)
-
-
-if __name__ == '__main__':
-	cli()
