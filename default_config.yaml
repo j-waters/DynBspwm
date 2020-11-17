@@ -6,47 +6,47 @@ misc: "•"
 desktops:
   - name: ""
     extra_name: ''
-    order: 2
+    order: 220
     applications:
       - class: Chromium
   - name: ﭮ
     extra_name: discord
-    order: 2
+    order: 210
     applications:
       - class: discord
   - name: ""
     extra_name: pycharm
-    order: 3
+    order: 320
     applications:
       - class: jetbrains-pycharm
   - name: ""
     extra_name: phpstorm
-    order: 3
+    order: 315
     applications:
       - class: jetbrains-phpstorm
   - name: ""
     extra_name: webstorm
-    order: 3
+    order: 310
     applications:
       - class: jetbrains-webstorm
   - name: ""
     extra_name: idea
-    order: 3
+    order: 330
     applications:
       - class: jetbrains-idea
   - name: ""
     extra_name: VS Code
-    order: 3
+    order: 340
     applications:
       - class: Code - OSS
   - name: MMC
     extra_name: ''
-    order: 4
+    order: 410
     applications:
       - class: MultiMC5
   - name: MC
     extra_name: "%instance"
-    order: 5
+    order: 420
     applications:
       - class: Minecraft .*
   - name: TEST

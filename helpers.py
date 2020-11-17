@@ -1,7 +1,7 @@
-from typing import Union, Set
+from typing import Union
 
-from config import CONFIG, DesktopConfig
-from pybspc import Monitor, BSPWM, get_wm, Node, Desktop
+from config import CONFIG
+from pybspc import Monitor, BSPWM, get_wm, Node, run
 
 
 def clear_empty_desktops(container: Union[BSPWM, Monitor]):
@@ -39,8 +39,10 @@ def update_names(wm: BSPWM = None):
 def create_home(wm: BSPWM = None):
 	if wm is None:
 		wm = get_wm()
-	if CONFIG.get_home(wm) is None:
-		CONFIG.home_desktop.create(wm)
+	for monitor in wm.monitors:
+		if CONFIG.get_home(monitor) is None:
+			# monitor.create_desktop()
+			CONFIG.home_desktop.create(monitor)
 
 
 def reorder(wm: BSPWM = None):
@@ -56,8 +58,38 @@ def reorder(wm: BSPWM = None):
 		ordered = [
 			desktop.find(wm) for desktop in sorted(CONFIG.get_desktops(wm, monitor), key=lambda desktop: desktop.order)
 		]
-		ordered.insert(0, CONFIG.get_home(wm))
+		ordered.insert(0, CONFIG.get_home(monitor))
 		ordered = _remove_duplicates(ordered)
 		not_included = [desktop for desktop in monitor.desktops if desktop not in ordered]
 		ordered = ordered + not_included
 		monitor.reorder(ordered)
+
+
+def remove_old_monitors(wm: BSPWM = None):
+	if wm is None:
+		wm = get_wm()
+	xrandr = run('xrandr').read()
+	laptop_monitor = next((monitor for monitor in wm.monitors if monitor.name == "eDP1"))
+	for monitor in wm.monitors:
+		if f"{monitor.name} connected" not in xrandr:
+			for desktop in monitor.desktops:
+				if CONFIG.match_home(desktop):
+					if len(desktop.nodes) > 0:
+						misc = laptop_monitor.create_desktop(CONFIG.misc_name)
+						for node in desktop.nodes:
+							node.to_desktop(misc)
+				else:
+					desktop.to_monitor(laptop_monitor)
+			monitor.remove()
+	reorder(wm)
+
+
+def new_monitor_added(monitor: Monitor, wm: BSPWM = None):
+	create_home()
+	clear_empty_desktops(monitor)
+	laptop_monitor = next((monitor for monitor in wm.monitors if monitor.name == "eDP1"))
+	if "HDMI" in monitor.name:
+		for desktop in laptop_monitor.desktops:
+			if not CONFIG.match_home(desktop):
+				desktop.to_monitor(monitor)
+		reorder(wm)

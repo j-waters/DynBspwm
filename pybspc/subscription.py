@@ -1,11 +1,8 @@
+import traceback
 from logging import debug, info, warning
 
 from .bspwm import BSPWM
 from .utils import run
-from .desktop import Desktop
-from .monitor import Monitor
-from .node import Node
-import traceback
 
 
 class Subscriber:
@@ -48,7 +45,6 @@ class Subscriber:
 				desktop = wm.get_desktop(message[2])
 				node = wm.get_node(message[3])
 				self.events.get(action)(wm, monitor, desktop, node)
-				pass
 			if action == 'desktop_transfer':
 				# src_monitor_id src_desktop_id dst_monitor_id
 				src_monitor = wm.get_monitor(message[1])
@@ -63,7 +59,20 @@ class Subscriber:
 			if action == 'node_transfer':
 				# <src_monitor_id> <src_desktop_id> <src_node_id>
 				# <dst_monitor_id> <dst_desktop_id> <dst_node_id>
-				self.events.get(action)()
+				src_monitor = wm.get_monitor(message[1])
+				src_desktop = wm.get_desktop(message[2])
+				src_node = wm.get_node(message[3])
+				dst_monitor = wm.get_monitor(message[4])
+				dst_desktop = wm.get_desktop(message[5])
+				dst_node = wm.get_node(message[6])
+				self.events.get(action)(wm, src_monitor, src_desktop, src_node, dst_monitor, dst_desktop, dst_node)
+			if action == 'monitor_remove':
+				# <monitor_name>
+				pass
+			if action == 'monitor_add':
+				# <monitor_id> <monitor_name> <monitor_geometry>
+				monitor = wm.get_monitor(message[1])
+				self.events.get(action)(wm, monitor)
 
 		except Exception as e:
 			warning("Exception caught while handling '" + " ".join(message) + "'")

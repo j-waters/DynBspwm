@@ -1,8 +1,7 @@
-from random import randint
-from typing import Union, Set, List, Tuple
+from typing import Set, List, Tuple
 
-from .node import Node
 from .desktop import Desktop
+from .node import Node
 from .utils import run, INVCHAR, _int
 
 
@@ -30,7 +29,7 @@ class Monitor:
 	def nodes(self) -> Set[Node]:
 		return set().union(*(d.nodes for d in self.desktops))
 
-	def create_desktop(self, name):
+	def create_desktop(self, name: str):
 		temp_name = INVCHAR
 		run(f'bspc monitor {self.id} --add-desktops {temp_name}')
 		desktop = Desktop.get(temp_name)
@@ -67,3 +66,6 @@ class Monitor:
 
 		for operation in operations:
 			operation[0].swap(operation[1])
+
+	def remove(self):
+		run(f'bspc monitor {self.id} --remove')

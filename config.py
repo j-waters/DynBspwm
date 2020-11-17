@@ -1,11 +1,11 @@
 import os
-from typing import List, Set
+from pathlib import Path
+from re import compile
+from typing import Set
 
 from yaml import safe_load
 
 from pybspc import Node, BSPWM, get_wm, Desktop, Monitor
-from re import compile
-from pathlib import Path
 
 
 class Config:
@@ -54,11 +54,8 @@ class Config:
 			if desk is not None and (monitor is None or desk.monitor == monitor):
 				yield desktop
 
-	def get_home(self, wm: BSPWM = None):
-		if wm is None:
-			wm = get_wm()
-
-		for desktop in wm.desktops:
+	def get_home(self, monitor: Monitor):
+		for desktop in monitor.desktops:
 			if self.match_home(desktop):
 				return desktop
 		return None
@@ -83,7 +80,7 @@ class DesktopConfig:
 		return None
 
 	def match(self, desktop: Desktop, exclude_nodes: Set[Node] = None):
-		if desktop.name == self.name or desktop.name == f"{self.name} {self.extra_name}":
+		if desktop.name == self.collapsed_name or desktop.name == self.expanded_name:
 			return self.match_applications(desktop, exclude_nodes)
 		return False
 
@@ -101,16 +98,13 @@ class DesktopConfig:
 				return desktop
 		return None
 
-	def create(self, wm: BSPWM = None):
-		if wm is None:
-			wm = get_wm()
-
-		if len(set(self.get_duplicates(wm.current_monitor))) == 0:
+	def create(self, monitor: Monitor):
+		if len(set(self.get_duplicates(monitor))) == 0:
 			name = self.collapsed_name
 		else:
 			name = self.expanded_name
 
-		desktop = wm.current_monitor.create_desktop(name)
+		desktop = monitor.create_desktop(name)
 		return desktop
 
 	def get_duplicates(self, monitor: Monitor, wm: BSPWM = None):

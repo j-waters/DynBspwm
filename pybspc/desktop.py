@@ -1,9 +1,7 @@
-from json import loads
-from random import randint
-from typing import List, Union, Set, TYPE_CHECKING
+from typing import Set, TYPE_CHECKING
 
 from .node import Node
-from .utils import run, INVCHAR, _int
+from .utils import run, _int
 
 if TYPE_CHECKING:
 	from .monitor import Monitor
@@ -59,6 +57,9 @@ class Desktop:
 
 	def swap(self, desktop, follow=False):
 		run(f'bspc desktop {self.id} --swap {desktop.id} {"--follow" if follow else ""}')
+
+	def to_monitor(self, monitor: "Monitor", follow=False):
+		run(f'bspc desktop {self.id} --to-monitor {monitor.id} {"--follow" if follow else ""}')
 
 	@staticmethod
 	def get(selector):
