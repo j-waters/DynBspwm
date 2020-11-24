@@ -33,8 +33,7 @@ def node_added(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
 
 @sub.event('node_remove')
 def node_removed(wm: BSPWM, monitor: Monitor, desktop: Desktop, node: Node):
-	if len(desktop.nodes) == 0:
-		desktop.delete()
+	clear_empty_desktops(monitor)
 
 
 @sub.event('desktop_remove')
